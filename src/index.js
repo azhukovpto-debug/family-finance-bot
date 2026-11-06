@@ -1,3 +1,4 @@
+
 export default {
   async fetch(request, env) {
     if (request.method !== "POST") {
@@ -9,6 +10,11 @@ export default {
       const message = update.message;
 
       if (!message?.text) {
+        return new Response("OK");
+      }
+
+      if (!env.BOT_TOKEN) {
+        console.log("ОШИБКА: BOT_TOKEN отсутствует");
         return new Response("OK");
       }
 
@@ -41,12 +47,16 @@ export default {
         }
       );
 
-      return new Response(
-        response.ok ? "OK" : "Telegram sendMessage error",
-        { status: response.ok ? 200 : 500 }
-      );
+      const result = await response.text();
+
+      console.log("Telegram status:", response.status);
+      console.log("Telegram response:", result);
+
+      return new Response("OK");
+
     } catch (error) {
-      return new Response("Worker error", { status: 500 });
+      console.log("Worker error:", error.message);
+      return new Response("OK");
     }
   }
 };
